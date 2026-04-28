@@ -1,10 +1,25 @@
 {
   "name": "telegram-code-companion",
   "version": "0.1.0",
-  "private": true,
+  "description": "MCP server that lets your coding agent send you Telegram notifications",
+  "keywords": [
+    "mcp",
+    "telegram",
+    "notifications",
+    "ai-agent",
+    "coding-agent"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loque/telegram-code-companion.git"
+  },
+  "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "bin": {
-    "telegram-code-companion": "./dist/main.js"
+    "telegram-code-companion": "dist/main.js"
   },
   "files": [
     "dist",
@@ -12,7 +27,8 @@
   ],
   "scripts": {
     "dev": "npx -y @modelcontextprotocol/inspector bun run --hot src/main.ts",
-    "build:js": "esbuild src/main.ts --bundle --platform=node --format=esm --target=node20 --outfile=dist/main.js --banner:js='#!/usr/bin/env node'",
+    "build:js": "esbuild src/main.ts --bundle --platform=node --format=esm --target=node20 --outfile=dist/main.js --loader:.md=text --banner:js='#!/usr/bin/env node'",
+    "prepublishOnly": "bun run build:js",
     "format:fix": "prettier . --write",
     "types:check": "tsc --noEmit",
     "lint:fix": "eslint . --fix",
