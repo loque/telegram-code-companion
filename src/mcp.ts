@@ -14,7 +14,7 @@ export function createNotifyToolHandler(notifier: Notifier) {
 
 export function createMcpServer(notifier: Notifier): McpServer {
   const server = new McpServer({
-    name: "telegram-human-loop",
+    name: "telegram-code-companion",
     version: "0.1.0",
   });
 
