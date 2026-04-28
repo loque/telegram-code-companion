@@ -1,17 +1,26 @@
 import { describe, expect, it, vi } from "vitest";
+import { Bot } from "grammy";
 
-import { NotifyDeliveryError, createTelegramNotifier } from "../src/telegram";
+import {
+  NotifyTelegramDeliveryError,
+  createNotifyTelegramAdapter,
+} from "../src/tools/notify/telegram-adapter";
 
-describe("createTelegramNotifier", () => {
+describe("createNotifyTelegramNotifierFromBot", () => {
   it("sends a prefixed message and returns the telegram message id", async () => {
-    const sendMessage = vi
-      .fn<(chatId: number, text: string) => Promise<{ message_id: number }>>()
-      .mockResolvedValue({ message_id: 42 });
-
-    const notifier = createTelegramNotifier({
-      allowedChatId: 123,
-      sendMessage,
+    const bot = new Bot("test-bot-token");
+    const sendMessage = vi.spyOn(bot.api, "sendMessage").mockResolvedValue({
+      message_id: 42,
+      date: 0,
+      chat: {
+        id: 123,
+        type: "private",
+        first_name: "Test",
+      },
+      text: "🔔 Build finished",
     });
+
+    const notifier = createNotifyTelegramAdapter(bot, 123);
 
     await expect(notifier.notify("Build finished")).resolves.toEqual({
       delivered: true,
@@ -22,17 +31,17 @@ describe("createTelegramNotifier", () => {
   });
 
   it("throws a domain-specific error when telegram delivery fails", async () => {
+    const bot = new Bot("test-bot-token");
     const sendMessage = vi
-      .fn<(chatId: number, text: string) => Promise<{ message_id: number }>>()
+      .spyOn(bot.api, "sendMessage")
       .mockRejectedValue(new Error("network down"));
 
-    const notifier = createTelegramNotifier({
-      allowedChatId: 123,
-      sendMessage,
-    });
+    const notifier = createNotifyTelegramAdapter(bot, 123);
 
     await expect(notifier.notify("Build finished")).rejects.toBeInstanceOf(
-      NotifyDeliveryError,
+      NotifyTelegramDeliveryError,
     );
+
+    expect(sendMessage).toHaveBeenCalledWith(123, "🔔 Build finished");
   });
 });
