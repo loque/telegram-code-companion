@@ -1,2 +1,7 @@
 .agents
 dist
+bun.lock
+eslint.config.mjs
+skill-lock.json
+tsconfig.json
+vitest.config.ts
