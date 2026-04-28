@@ -24,17 +24,14 @@ export type NotifyTelegramAdapter = {
 
 export function createNotifyTelegramAdapter(
   bot: Bot,
-  allowedChatId: number,
+  chatId: number,
 ): NotifyTelegramAdapter {
   return {
     async notify(message: string): Promise<NotifyToolOutput> {
       const telegramText = formatNotifyMessage(message);
 
       try {
-        const telegramMessage = await bot.api.sendMessage(
-          allowedChatId,
-          telegramText,
-        );
+        const telegramMessage = await bot.api.sendMessage(chatId, telegramText);
 
         return {
           delivered: true,

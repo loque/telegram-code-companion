@@ -8,12 +8,12 @@ import { createNotifyTelegramAdapter } from "./tools/notify/telegram-adapter";
 
 export async function startServer(): Promise<void> {
   // Bootstrap order is explicit to keep startup behavior easy to reason about.
-  const config = loadConfig(process.env);
-  const telegramBot = new Bot(config.telegramBotToken);
+  const { telegramBotToken, telegramChatId } = loadConfig(process.env);
+  const telegramBot = new Bot(telegramBotToken);
 
   const notifyTelegramAdapter = createNotifyTelegramAdapter(
     telegramBot,
-    config.telegramAllowedChatId,
+    telegramChatId,
   );
   const notifyTool = createNotifyToolDefinition({
     notifyTelegramAdapter,

@@ -58,7 +58,7 @@ describe("createNotifyTool", () => {
 
     expect(notifyTool.name).toBe("notify");
     expect(notifyTool.config.description).toBe(
-      "Send a one-way message to Telegram.",
+      "Notify the user on Telegram when they are AFK.",
     );
     expect(notifyTool.config.inputSchema).toHaveProperty("message");
     expect(notifyTool.config.outputSchema).toHaveProperty("delivered");

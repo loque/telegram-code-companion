@@ -28,7 +28,7 @@ export function createNotifyToolDefinition({
   return {
     name: "notify",
     config: {
-      description: "Send a one-way message to Telegram.",
+      description: "Notify the user on Telegram when they are AFK.",
       inputSchema: notifyToolInputSchema,
       outputSchema: notifyToolOutputSchema,
     },

@@ -1,10 +1,11 @@
 # Telegram Code Companion (MCP)
 
-This project is a small MCP server that lets your coding agent send you Telegram messages.
+This project is a small MCP server that lets your coding agent send you Telegram
+messages.
 
 Right now, the implemented tool is:
 
-- `notify`: send a one-way status message to Telegram
+- `notify`: notify the user when they are AFK
 
 ## What you need
 
@@ -33,7 +34,7 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/getUpdates"
 
 - `result[0].message.chat.id`
 
-That number is your `TELEGRAM_ALLOWED_CHAT_ID`.
+That number is your `TELEGRAM_CHAT_ID`.
 
 ## 3) Set environment variables
 
@@ -41,8 +42,12 @@ Set these in your shell before starting the server:
 
 ```bash
 export TELEGRAM_BOT_TOKEN="your_bot_token"
-export TELEGRAM_ALLOWED_CHAT_ID="your_chat_id"
+export TELEGRAM_CHAT_ID="your_chat_id"
 ```
+
+Each coding agent should install this MCP server with its own environment
+variables or key material. You can share the same Telegram destination across
+clients, or use separate bot tokens and chat IDs per user or per agent.
 
 ## 4) Run the built server
 
@@ -52,17 +57,40 @@ node dist/main.js
 
 The server runs over stdio, so you usually start it from your MCP client config.
 
-## 5) Connect from your MCP client
+## 5) Distribution
 
-Point your MCP client to:
+This MCP server can be installed:
 
-- Command: `node`
-- Args: `dist/main.js`
-- Env:
-  - `TELEGRAM_BOT_TOKEN`
-  - `TELEGRAM_ALLOWED_CHAT_ID`
+- **Locally**: Point your MCP client to the built `dist/main.js` with environment
+  variables set.
+- **From a private repo** (in development): Install via `npx` or package
+  manager by pointing to a GitHub repo with environment variables passed by your
+  MCP client's configuration.
 
-## 6) Use the `notify` tool
+### Environment variables
+
+Environment variables are passed by your MCP client config, not by the server
+itself. Examples:
+
+- **GitHub Copilot** (`mcp.json`): `"env": { "TELEGRAM_BOT_TOKEN": "..." }`
+- **OpenAI Codex** (CLI): `--env TELEGRAM_BOT_TOKEN=...`
+- **Anthropic Claude Code** (config): per-scope environment setup
+
+Consult your MCP client's configuration documentation for how to pass env vars.
+
+## 6) Client integration
+
+The MCP server exports a `notify` tool. Each coding agent (GitHub Copilot, Codex,
+Claude Code) can discover this tool and decide when to call it.
+
+The server also exports an `afk` prompt that provides guidance: when to use
+`notify` for meaningful milestones and at final completion.
+
+Agents can discover and use this prompt in their instruction systems. For
+example, agents might respond to keywords like `afk`, `away`, `notify me`, or
+`ping me` by consulting the `afk` prompt for context.
+
+## 7) Use the `notify` tool
 
 Call the tool with:
 
@@ -77,13 +105,21 @@ If delivery works, the tool returns:
 - `delivered: true`
 - `telegram_message_id: <number>`
 
+Recommended usage:
+
+- milestone updates during long-running agentic workflows
+- blocked states when the agent needs the user to return
+- final completion when the user is AFK
+
 You will receive the message in Telegram with a bell prefix, for example:
 
 `🔔 Build finished successfully`
 
 ## Local development
 
-The consumer flow runs the built JavaScript file with Node.js. Local development uses Bun so you can install dependencies, run the TypeScript source directly, and rebuild `dist/main.js`.
+The consumer flow runs the built JavaScript file with Node.js. Local development
+uses Bun so you can install dependencies, run the TypeScript source directly,
+and rebuild `dist/main.js`.
 
 Install dependencies:
 
@@ -109,7 +145,7 @@ For local development, point your MCP client to:
 - Args: `run src/main.ts`
 - Env:
   - `TELEGRAM_BOT_TOKEN`
-  - `TELEGRAM_ALLOWED_CHAT_ID`
+  - `TELEGRAM_CHAT_ID`
 
 Run local checks:
 
